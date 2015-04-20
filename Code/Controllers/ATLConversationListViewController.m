@@ -97,8 +97,6 @@ NSString *const ATLConversationTableViewAccessibilityIdentifier = @"Conversation
     self.title = ATLConversationListViewControllerTitle;
     self.accessibilityLabel = ATLConversationListViewControllerTitle;
     
-    self.tableView.delegate = self;
-    self.tableView.dataSource = self;
     self.tableView.accessibilityLabel = ATLConversationTableViewAccessibilityLabel;
     self.tableView.accessibilityIdentifier = ATLConversationTableViewAccessibilityIdentifier;
     self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];

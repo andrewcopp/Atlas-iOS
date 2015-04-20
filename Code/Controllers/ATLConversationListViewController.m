@@ -75,11 +75,6 @@ NSString *const ATLConversationTableViewAccessibilityIdentifier = @"Conversation
     _rowHeight = 76.0f;
 }
 
-- (void)loadView
-{
-    self.view = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
-}
-
 - (id)init
 {
     [NSException raise:NSInternalInconsistencyException format:@"Failed to call designated initializer"];

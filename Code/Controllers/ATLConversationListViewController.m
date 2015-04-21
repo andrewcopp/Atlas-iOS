@@ -226,7 +226,9 @@ NSString *const ATLConversationTableViewAccessibilityIdentifier = @"Conversation
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    UITableViewCell<ATLConversationPresenting> *conversationCell = [tableView dequeueReusableCellWithIdentifier:ATLConversationCellReuseIdentifier forIndexPath:indexPath];
+    NSString *reuseIdentifier = [self reuseIdentifierForRowAtIndexPath:indexPath];
+    
+    UITableViewCell<ATLConversationPresenting> *conversationCell = [tableView dequeueReusableCellWithIdentifier:reuseIdentifier forIndexPath:indexPath];
     [self configureCell:conversationCell atIndexPath:indexPath];
     return conversationCell;
 }
@@ -345,6 +347,20 @@ NSString *const ATLConversationTableViewAccessibilityIdentifier = @"Conversation
         [self setEditing:NO animated:YES];
     }
     self.conversationToDelete = nil;
+}
+
+#pragma mark - Data Source
+
+- (NSString *)reuseIdentifierForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    NSString *reuseIdentifier;
+    if ([self.dataSource respondsToSelector:@selector(reuseIdentifierForConversationListViewController:)]) {
+        reuseIdentifier = [self.dataSource reuseIdentifierForConversationListViewController:self];
+    }
+    if (!reuseIdentifier) {
+        reuseIdentifier = ATLConversationCellReuseIdentifier;
+    }
+    return reuseIdentifier;
 }
 
 #pragma mark - LYRQueryControllerDelegate

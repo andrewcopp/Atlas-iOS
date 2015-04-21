@@ -84,10 +84,19 @@
 @optional
 
 /**
+ @abstract Asks the data source for the table view cell reuse identifier for a conversation.
+ @param viewController The 'ATLConversationListViewController' requesting the string.
+ @return A string that will be used to dequeue a cell from the table view.
+ @discussion Applications that wish to prototype custom cells in a UIStoryboard should not programmatically register their custom cells.
+ Applications should return the a reuse identifier only when using UIStoryboards. If 'nil' is returned, the table view will default to internal values for reuse identifers.
+ */
+- (NSString *)reuseIdentifierForConversationListViewController:(ATLConversationListViewController *)viewController;
+
+/**
  @abstract Asks the delegate for an avatar item representing a conversation.
  @param conversationListViewController The `LYRConversationListViewController` in which the item's data will appear.
  @param conversation The `LYRConversation` object.
- @return An object conforming to the `ATLAvatarItem` protocol. 
+ @return An object conforming to the `ATLAvatarItem` protocol.
  @discussion The data provided by the object conforming to the `ATLAvatarItem` protocol will be displayed in an `LYRAvatarImageView`.
  */
 - (id<ATLAvatarItem>)conversationListViewController:(ATLConversationListViewController *)conversationListViewController avatarItemForConversation:(LYRConversation *)conversation;

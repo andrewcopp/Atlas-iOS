@@ -47,6 +47,8 @@
 @property (nonatomic) BOOL canDisableAddressBar;
 @property (nonatomic) dispatch_queue_t animationQueue;
 
+@property (nonatomic) UIActionSheet *photoActionSheet;
+
 @end
 
 @implementation ATLConversationViewController
@@ -494,6 +496,7 @@ static NSString *const ATLPushNotificationSoundName = @"layerbell.caf";
                                                     cancelButtonTitle:@"Cancel"
                                                destructiveButtonTitle:nil
                                                     otherButtonTitles:@"Take Photo", @"Last Photo Taken", @"Photo Library", nil];
+    [self setPhotoActionSheet:actionSheet];
     [actionSheet showInView:self.view];
 }
 
@@ -602,21 +605,23 @@ static NSString *const ATLPushNotificationSoundName = @"layerbell.caf";
 
 - (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
 {
-    switch (buttonIndex) {
-        case 0:
-            [self displayImagePickerWithSourceType:UIImagePickerControllerSourceTypeCamera];
-            break;
-            
-        case 1:
-           [self captureLastPhotoTaken];
-            break;
-          
-        case 2:
-            [self displayImagePickerWithSourceType:UIImagePickerControllerSourceTypePhotoLibrary];
-            break;
-            
-        default:
-            break;
+    if ([actionSheet isEqual:[self photoActionSheet]]) {
+        switch (buttonIndex) {
+            case 0:
+                [self displayImagePickerWithSourceType:UIImagePickerControllerSourceTypeCamera];
+                break;
+                
+            case 1:
+                [self captureLastPhotoTaken];
+                break;
+                
+            case 2:
+                [self displayImagePickerWithSourceType:UIImagePickerControllerSourceTypePhotoLibrary];
+                break;
+                
+            default:
+                break;
+        }
     }
 }
 

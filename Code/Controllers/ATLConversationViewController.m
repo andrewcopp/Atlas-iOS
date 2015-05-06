@@ -491,13 +491,12 @@ static NSString *const ATLPushNotificationSoundName = @"layerbell.caf";
 
 - (void)messageInputToolbar:(ATLMessageInputToolbar *)messageInputToolbar didTapLeftAccessoryButton:(UIButton *)leftAccessoryButton
 {
-    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:nil
-                                                             delegate:self
-                                                    cancelButtonTitle:@"Cancel"
-                                               destructiveButtonTitle:nil
-                                                    otherButtonTitles:@"Take Photo", @"Last Photo Taken", @"Photo Library", nil];
-    [self setPhotoActionSheet:actionSheet];
-    [actionSheet showInView:self.view];
+    self.photoActionSheet = [[UIActionSheet alloc] initWithTitle:nil
+                                                        delegate:self
+                                               cancelButtonTitle:@"Cancel"
+                                          destructiveButtonTitle:nil
+                                               otherButtonTitles:@"Take Photo", @"Last Photo Taken", @"Photo Library", nil];
+    [self.photoActionSheet showInView:self.view];
 }
 
 - (void)messageInputToolbar:(ATLMessageInputToolbar *)messageInputToolbar didTapRightAccessoryButton:(UIButton *)rightAccessoryButton
@@ -605,7 +604,7 @@ static NSString *const ATLPushNotificationSoundName = @"layerbell.caf";
 
 - (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
 {
-    if ([actionSheet isEqual:[self photoActionSheet]]) {
+    if ([actionSheet isEqual:self.photoActionSheet]) {
         switch (buttonIndex) {
             case 0:
                 [self displayImagePickerWithSourceType:UIImagePickerControllerSourceTypeCamera];

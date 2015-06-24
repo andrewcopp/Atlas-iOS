@@ -250,7 +250,7 @@
 @property (nonatomic) BOOL shouldDisplayAvatarItemForOneOtherParticipant;
 
 /**
- @abstract
+ @abstract A Boolean value that determines whether or not an avatar is shown for the user.
  @default 'NO'.
  */
 @property (nonatomic) BOOL shouldDisplayAvatarItemForUser;

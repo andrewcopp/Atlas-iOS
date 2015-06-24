@@ -262,7 +262,7 @@ typedef NS_ENUM(NSUInteger, ATLAvatarItemDisplayFrequency) {
 @property (nonatomic) BOOL shouldDisplayAvatarItemForUser;
 
 /**
- @abstract
+ @abstract An Enum value that determines how often avatar items should be shown next to messages.
  @default 'ATLAvatarItemDisplayFrequencySection'.
  */
 @property (nonatomic) ATLAvatarItemDisplayFrequency avatarItemDisplayFrequency;

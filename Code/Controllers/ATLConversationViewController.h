@@ -24,7 +24,6 @@
 #import "ATLParticipant.h"
 #import "ATLBaseConversationViewController.h"
 
-
 @class ATLConversationViewController;
 @protocol ATLMessagePresenting;
 
@@ -249,5 +248,11 @@
  @default `NO`.
  */
 @property (nonatomic) BOOL shouldDisplayAvatarItemForOneOtherParticipant;
+
+/**
+ @abstract
+ @default 'NO'.
+ */
+@property (nonatomic) BOOL shouldDisplayAvatarItemForUser;
 
 @end

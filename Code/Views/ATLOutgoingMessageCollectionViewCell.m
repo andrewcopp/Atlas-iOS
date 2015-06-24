@@ -20,9 +20,18 @@
 
 #import "ATLOutgoingMessageCollectionViewCell.h"
 
+@interface ATLOutgoingMessageCollectionViewCell ()
+
+@property (nonatomic) NSLayoutConstraint *bubbleWithAvatarRightConstraint;
+@property (nonatomic) NSLayoutConstraint *bubbleWithoutAvatarRightConstraint;
+
+@end
+
 @implementation ATLOutgoingMessageCollectionViewCell
 
 NSString *const ATLOutgoingMessageCellIdentifier = @"ATLOutgoingMessageCellIdentifier";
+CGFloat const ATLAvatarImageRightPadding = -12.0f;
+CGFloat const ATLAvatarImageLeftPadding = -7.0f;
 
 + (void)initialize
 {
@@ -54,6 +63,40 @@ NSString *const ATLOutgoingMessageCellIdentifier = @"ATLOutgoingMessageCellIdent
 {
     self.avatarImageView.hidden = YES;
     [self.contentView addConstraint:[NSLayoutConstraint constraintWithItem:self.bubbleView  attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeRight multiplier:1.0 constant:-ATLMessageCellHorizontalMargin]];
+}
+
+- (void)shouldDisplayAvatarItem:(BOOL)shouldDisplayAvatarItem
+{
+    NSArray *constraints = [self.contentView constraints];
+    if (shouldDisplayAvatarItem) {
+        if ([constraints containsObject:self.bubbleWithAvatarRightConstraint]) return;
+        [self.contentView removeConstraint:self.bubbleWithoutAvatarRightConstraint];
+        [self.contentView addConstraint:self.bubbleWithAvatarRightConstraint];
+    } else {
+        if ([constraints containsObject:self.bubbleWithoutAvatarRightConstraint]) return;
+        [self.contentView removeConstraint:self.bubbleWithAvatarRightConstraint];
+        [self.contentView addConstraint:self.bubbleWithoutAvatarRightConstraint];
+    }
+    [self setNeedsUpdateConstraints];
+}
+
+- (void)updateWithSender:(id<ATLParticipant>)sender
+{
+    if (sender) {
+        self.avatarImageView.hidden = NO;
+        self.avatarImageView.avatarItem = sender;
+    } else {
+        self.avatarImageView.hidden = YES;
+    }
+}
+
+- (void)configureConstraintsForOutgoingMessage
+{
+    [self.contentView addConstraint:[NSLayoutConstraint constraintWithItem:self.avatarImageView attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeRight multiplier:1.0 constant:ATLAvatarImageRightPadding]];
+    [self.contentView addConstraint:[NSLayoutConstraint constraintWithItem:self.avatarImageView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0]];
+    self.bubbleWithAvatarRightConstraint = [NSLayoutConstraint constraintWithItem:self.bubbleView attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.avatarImageView attribute:NSLayoutAttributeLeft multiplier:1.0 constant:ATLAvatarImageLeftPadding];
+    [self.contentView addConstraint:self.bubbleWithAvatarRightConstraint];
+    self.bubbleWithoutAvatarRightConstraint = [NSLayoutConstraint constraintWithItem:self.bubbleWithoutAvatarRightConstraint attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeLeft multiplier:1.0 constant:ATLMessageCellHorizontalMargin];
 }
 
 @end

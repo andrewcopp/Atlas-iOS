@@ -373,7 +373,11 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
 - (void)configureCell:(UICollectionViewCell<ATLMessagePresenting> *)cell forMessage:(LYRMessage *)message indexPath:(NSIndexPath *)indexPath
 {
     [cell presentMessage:message];
-    [cell shouldDisplayAvatarItem:self.shouldDisplayAvatarItem];
+    if ([message.sender.userID isEqual:self.layerClient.authenticatedUserID]) {
+        [cell shouldDisplayAvatarItem:self.shouldDisplayAvatarItemForUser];
+    } else {
+        [cell shouldDisplayAvatarItem:self.shouldDisplayAvatarItem];
+    }
     
     if ([self shouldDisplayAvatarItemAtIndexPath:indexPath]) {
         [cell updateWithSender:[self participantForIdentifier:message.sender.userID]];

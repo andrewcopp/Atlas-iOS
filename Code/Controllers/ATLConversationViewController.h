@@ -24,6 +24,12 @@
 #import "ATLParticipant.h"
 #import "ATLBaseConversationViewController.h"
 
+typedef NS_ENUM(NSUInteger, ATLAvatarItemDisplayFrequency) {
+    ATLAvatarItemDisplayFrequencySection,
+    ATLAvatarItemDisplayFrequencyCluster,
+    ATLAvatarItemDisplayFrequencyAll
+};
+
 @class ATLConversationViewController;
 @protocol ATLMessagePresenting;
 
@@ -254,5 +260,11 @@
  @default 'NO'.
  */
 @property (nonatomic) BOOL shouldDisplayAvatarItemForUser;
+
+/**
+ @abstract
+ @default 'ATLAvatarItemDisplayFrequencySection'.
+ */
+@property (nonatomic) ATLAvatarItemDisplayFrequency avatarItemDisplayFrequency;
 
 @end

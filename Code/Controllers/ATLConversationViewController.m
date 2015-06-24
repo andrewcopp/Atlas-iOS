@@ -95,6 +95,7 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
     _marksMessagesAsRead = YES;
     _shouldDisplayAvatarItemForOneOtherParticipant = NO;
     _shouldDisplayAvatarItemForUser = NO;
+    _avatarItemDisplayFrequency = ATLAvatarItemDisplayFrequencySection;
     _typingParticipantIDs = [NSMutableOrderedSet new];
     _sectionHeaders = [NSHashTable weakObjectsHashTable];
     _sectionFooters = [NSHashTable weakObjectsHashTable];
@@ -500,7 +501,9 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
     if (indexPath.section < lastSection) {
         LYRMessage *nextMessage = [self.conversationDataSource messageAtCollectionViewSection:indexPath.section + 1];
         // If the next message is sent by the same user, no
-        if ([nextMessage.sender.userID isEqualToString:message.sender.userID]) {
+        if ([self shouldClusterMessageAtSection:indexPath.section] && self.avatarItemDisplayFrequency == ATLAvatarItemDisplayFrequencyCluster) {
+            return NO;
+        } else if ([nextMessage.sender.userID isEqualToString:message.sender.userID] && self.avatarItemDisplayFrequency != ATLAvatarItemDisplayFrequencyAll) {
             return NO;
         }
     }

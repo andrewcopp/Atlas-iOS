@@ -95,7 +95,7 @@ static CGFloat const ATLAvatarImageLeftPadding = -7.0f;
     [self.contentView addConstraint:[NSLayoutConstraint constraintWithItem:self.avatarImageView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0]];
     self.bubbleWithAvatarRightConstraint = [NSLayoutConstraint constraintWithItem:self.bubbleView attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.avatarImageView attribute:NSLayoutAttributeLeft multiplier:1.0 constant:ATLAvatarImageLeftPadding];
     [self.contentView addConstraint:self.bubbleWithAvatarRightConstraint];
-    self.bubbleWithoutAvatarRightConstraint = [NSLayoutConstraint constraintWithItem:self.bubbleWithoutAvatarRightConstraint attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeLeft multiplier:1.0 constant:ATLMessageCellHorizontalMargin];
+    self.bubbleWithoutAvatarRightConstraint = [NSLayoutConstraint constraintWithItem:self.bubbleView attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeLeft multiplier:1.0 constant:ATLMessageCellHorizontalMargin];
 }
 
 @end

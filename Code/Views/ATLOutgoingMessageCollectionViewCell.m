@@ -30,8 +30,8 @@
 @implementation ATLOutgoingMessageCollectionViewCell
 
 NSString *const ATLOutgoingMessageCellIdentifier = @"ATLOutgoingMessageCellIdentifier";
-CGFloat const ATLAvatarImageRightPadding = -12.0f;
-CGFloat const ATLAvatarImageLeftPadding = -7.0f;
+static CGFloat const ATLAvatarImageRightPadding = -12.0f;
+static CGFloat const ATLAvatarImageLeftPadding = -7.0f;
 
 + (void)initialize
 {

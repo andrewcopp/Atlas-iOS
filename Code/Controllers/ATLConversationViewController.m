@@ -713,6 +713,19 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
 
 #pragma mark - Notification Handlers
 
+- (void)keyboardWillShow:(NSNotification *)notification
+{
+    self.emptyConversationView.alpha = 0.0f;
+}
+
+- (void)keyboardWillHide:(NSNotification *)notification
+{
+    if (![self.navigationController.viewControllers containsObject:self]) {
+        return;
+    }
+    self.emptyConversationView.alpha = 1.0f;
+}
+
 - (void)didReceiveTypingIndicator:(NSNotification *)notification
 {
     if (!self.conversation) return;
@@ -1253,7 +1266,11 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
 #pragma mark - NSNotification Center Registration
 
 - (void)atl_registerForNotifications
-{    
+{
+    // Keyboard Notifications
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
+    
     // Layer Notifications
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveTypingIndicator:) name:LYRConversationDidReceiveTypingIndicatorNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(layerClientObjectsDidChange:) name:LYRClientObjectsDidChangeNotification object:nil];

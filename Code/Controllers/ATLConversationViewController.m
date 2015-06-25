@@ -193,7 +193,24 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
 
 - (void)fetchLayerMessages
 {
-    if (!self.conversation) return;
+    if (!self.conversation) {
+        [self.collectionView removeFromSuperview];
+        self.noConversationView.translatesAutoresizingMaskIntoConstraints = NO;
+        [self.view addSubview:self.noConversationView];
+        [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.noConversationView attribute:NSLayoutAttributeLeft multiplier:1.0f constant:0.0f]];
+        [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.noConversationView attribute:NSLayoutAttributeTop multiplier:1.0f constant:0.0f]];
+        [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.noConversationView attribute:NSLayoutAttributeRight multiplier:1.0f constant:0.0f]];
+        [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self.noConversationView attribute:NSLayoutAttributeBottom multiplier:1.0f constant:0.0f]];
+        return;
+    } else {
+        [self.noConversationView removeFromSuperview];
+        self.collectionView.translatesAutoresizingMaskIntoConstraints = NO;
+        [self.view addSubview:self.collectionView];
+        [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.collectionView attribute:NSLayoutAttributeLeft multiplier:1.0f constant:0.0f]];
+        [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.collectionView attribute:NSLayoutAttributeTop multiplier:1.0f constant:0.0f]];
+        [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.collectionView attribute:NSLayoutAttributeRight multiplier:1.0f constant:0.0f]];
+        [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self.collectionView attribute:NSLayoutAttributeBottom multiplier:1.0f constant:0.0f]];
+    }
     
     LYRQuery *query = [LYRQuery queryWithQueryableClass:[LYRMessage class]];
     query.predicate = [LYRPredicate predicateWithProperty:@"conversation" predicateOperator:LYRPredicateOperatorIsEqualTo value:self.conversation];

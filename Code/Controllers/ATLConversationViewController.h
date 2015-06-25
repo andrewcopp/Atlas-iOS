@@ -210,6 +210,12 @@
 @property (nonatomic, weak) id<ATLConversationViewControllerDataSource> dataSource;
 
 /**
+ @abstract The 'UIView' object to be displayed in the absence of a conversation. If this value is NULL, an empty conversation will be
+ be displayed intsead.
+ */
+@property (nonatomic) UIView *noConversationView;
+
+/**
  @abstract Register a class for use in creating message collection view cells.
  @param reuseIdentifier The string to be associated with the class.
  */

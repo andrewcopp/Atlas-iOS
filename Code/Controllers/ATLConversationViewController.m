@@ -193,6 +193,15 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
 
 - (void)fetchLayerMessages
 {
+    if (self.conversation.lastMessage != nil) {
+        self.emptyConversationView.translatesAutoresizingMaskIntoConstraints = NO;
+        [self.view addSubview:self.emptyConversationView];
+        [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.emptyConversationView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeLeft multiplier:1.0 constant:0]];
+        [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.emptyConversationView attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeRight multiplier:1.0 constant:0]];
+        [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.emptyConversationView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeTop multiplier:1.0 constant:0]];
+        [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.emptyConversationView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0]];
+    }
+    
     if (!self.conversation) return;
     
     LYRQuery *query = [LYRQuery queryWithQueryableClass:[LYRMessage class]];

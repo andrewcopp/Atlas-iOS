@@ -1130,6 +1130,8 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
     NSInteger currentIndex = indexPath ? [self.conversationDataSource collectionViewSectionForQueryControllerRow:indexPath.row] : NSNotFound;
     NSInteger newIndex = newIndexPath ? [self.conversationDataSource collectionViewSectionForQueryControllerRow:newIndexPath.row] : NSNotFound;
     [self.objectChanges addObject:[ATLDataSourceChange changeObjectWithType:type newIndex:newIndex currentIndex:currentIndex]];
+    
+    if (type == LYRQueryControllerChangeTypeInsert) [self.emptyConversationView removeFromSuperview];
 }
 
 - (void)queryControllerDidChangeContent:(LYRQueryController *)queryController

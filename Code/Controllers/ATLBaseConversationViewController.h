@@ -54,6 +54,11 @@
  */
 @property (nonatomic) UICollectionView *collectionView;
 
+/**
+
+ */
+@property (nonatomic) UIView *emptyConversationView;
+
 ///----------------------------------------------
 /// @name Configuring View Options
 ///----------------------------------------------

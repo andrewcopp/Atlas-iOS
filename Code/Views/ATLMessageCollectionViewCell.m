@@ -52,6 +52,11 @@ CGFloat const ATLMessageCellHorizontalMargin = 16.0f;
     return _sharedCell;
 }
 
++ (Class)bubbleViewClass
+{
+    return [ATLMessageBubbleView class];
+}
+
 - (id)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
@@ -79,7 +84,7 @@ CGFloat const ATLMessageCellHorizontalMargin = 16.0f;
     _bubbleViewColor = ATLBlueColor();
     _bubbleViewCornerRadius = 17.0f;
     
-    _bubbleView = [[ATLMessageBubbleView alloc] init];
+    _bubbleView = [[[[self class] bubbleViewClass] alloc] init];
     _bubbleView.translatesAutoresizingMaskIntoConstraints = NO;
     _bubbleView.layer.cornerRadius = _bubbleViewCornerRadius;
     _bubbleView.backgroundColor = _bubbleViewColor;

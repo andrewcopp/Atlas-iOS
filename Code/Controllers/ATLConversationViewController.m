@@ -496,13 +496,16 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
         return NO;
     }
    
+    if ([self shouldClusterMessageAtSection:indexPath.section] && self.avatarItemDisplayFrequency != ATLAvatarItemDisplayFrequencyCluster) {
+        return NO;
+    }
+    
     NSInteger lastQueryControllerRow = [self.conversationDataSource.queryController numberOfObjectsInSection:0] - 1;
     NSInteger lastSection = [self.conversationDataSource collectionViewSectionForQueryControllerRow:lastQueryControllerRow];
     if (indexPath.section < lastSection) {
         LYRMessage *nextMessage = [self.conversationDataSource messageAtCollectionViewSection:indexPath.section + 1];
-        if ([self shouldClusterMessageAtSection:indexPath.section] || self.avatarItemDisplayFrequency != ATLAvatarItemDisplayFrequencyCluster) {
-            return NO;
-        } else if ([nextMessage.sender.userID isEqualToString:message.sender.userID] && self.avatarItemDisplayFrequency != ATLAvatarItemDisplayFrequencyAll) {
+        // If the next message is sent by the same user, no
+        if ([nextMessage.sender.userID isEqualToString:message.sender.userID] && self.avatarItemDisplayFrequency != ATLAvatarItemDisplayFrequencyAll) {
             return NO;
         }
     }

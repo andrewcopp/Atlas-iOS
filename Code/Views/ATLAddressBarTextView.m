@@ -39,6 +39,7 @@ NSString *const ATLAddressBarTextViewAccesssibilityLabel = @"Address Bar Text Vi
 CGFloat const ATLAddressBarTextViewIndent = 34.0f;
 CGFloat const ATLAddressBarTextContainerInset = 10.0f;
 static CGFloat const ATLLineSpacing = 6;
+static CGFloat const ATLAddressBarMaxWidth = 215.0f;
 
 - (id)init
 {
@@ -157,8 +158,7 @@ static CGFloat const ATLLineSpacing = 6;
 
 - (void)setUpMaxHeight
 {
-#warning GET MAX CELL WIDTH HERE
-    CGSize size = ATLTextPlainSize(@" ", self.font, 215);
+    CGSize size = ATLTextPlainSize(@" ", self.font, ATLAddressBarMaxWidth);
     self.maxHeight = ceil(size.height) * 2 + ATLLineSpacing + self.textContainerInset.top + self.textContainerInset.bottom;
 }
 

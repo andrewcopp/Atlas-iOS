@@ -79,16 +79,14 @@ extern NSString *const ATLImageAccessibilityLabel;
 + (CGFloat)cellHeightForMessage:(LYRMessage *)message inView:(UIView *)view;
 
 /**
- @abstract The maximum width
- @discussion
- @default '215'
+ @abstract The maximum width of a message collection view cell
+ @default '215.0f'
  */
 + (CGFloat)maxCellWidth;
 
 /**
- @abstract The maximum height
- @discussion
- @default '300'
+ @abstract The maximum height of a message collection view cell
+ @default '300.0f'
  */
 + (CGFloat)maxCellHeight;
 

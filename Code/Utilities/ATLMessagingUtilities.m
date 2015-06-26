@@ -41,18 +41,6 @@ NSString *const ATLImagePreviewHeightKey = @"height";
 NSString *const ATLLocationLatitudeKey = @"lat";
 NSString *const ATLLocationLongitudeKey = @"lon";
 
-#pragma mark - Max Cell Dimensions
-
-CGFloat ATLMaxCellWidth()
-{
-    return 215;
-}
-
-CGFloat ATLMaxCellHeight()
-{
-    return 300;
-}
-
 #pragma mark - Private Image Utilities
 
 CGSize ATLSizeProportionallyConstrainedToSize(CGSize nativeSize, CGSize maxSize)
@@ -79,10 +67,10 @@ UIImage *ATLAdjustOrientationForImage(UIImage *originalImage)
 
 #pragma mark - Image Utilities
 
-CGSize ATLImageSizeForData(NSData *data)
+CGSize ATLImageSizeForData(NSData *data, CGFloat maxCellWidth, CGFloat maxCellHeight)
 {
     UIImage *image = [UIImage imageWithData:data];
-    return ATLImageSize(image);
+    return ATLImageSize(image, maxCellWidth, maxCellHeight);
 }
 
 CGSize ATLImageSizeForJSONData(NSData *data)
@@ -98,23 +86,23 @@ CGSize ATLImageSizeForJSONData(NSData *data)
     return CGSizeMake(width, height);
 }
 
-CGSize ATLImageSize(UIImage *image)
+CGSize ATLImageSize(UIImage *image, CGFloat maxCellWidth, CGFloat maxCellHeight)
 {
-    CGSize maxSize = CGSizeMake(ATLMaxCellWidth(), ATLMaxCellHeight());
+    CGSize maxSize = CGSizeMake(maxCellWidth, maxCellHeight);
     CGSize itemSize = ATLSizeProportionallyConstrainedToSize(image.size, maxSize);
     return itemSize;
 }
 
-CGSize ATLConstrainImageSizeToCellSize(CGSize imageSize)
+CGSize ATLConstrainImageSizeToCellSize(CGSize imageSize, CGFloat maxCellWidth, CGFloat maxCellHeight)
 {
-    CGSize maxSize = CGSizeMake(ATLMaxCellWidth(), ATLMaxCellHeight());
+    CGSize maxSize = CGSizeMake(maxCellWidth, maxCellHeight);
     CGSize itemSize = ATLSizeProportionallyConstrainedToSize(imageSize, maxSize);
     return itemSize;
 }
 
-CGSize ATLTextPlainSize(NSString *text, UIFont *font)
+CGSize ATLTextPlainSize(NSString *text, UIFont *font, CGFloat maxCellWidth)
 {
-    CGRect rect = [text boundingRectWithSize:CGSizeMake(ATLMaxCellWidth(), CGFLOAT_MAX)
+    CGRect rect = [text boundingRectWithSize:CGSizeMake(maxCellWidth, CGFLOAT_MAX)
                                      options:NSStringDrawingUsesLineFragmentOrigin
                                   attributes:@{NSFontAttributeName: font}
                                      context:nil];

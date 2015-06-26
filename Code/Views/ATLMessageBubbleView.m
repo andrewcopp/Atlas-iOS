@@ -131,9 +131,9 @@ typedef NS_ENUM(NSInteger, ATLBubbleViewContentType) {
     [self setBubbleViewContentType:ATLBubbleViewContentTypeImage];
 }
 
-- (void)updateWithLocation:(CLLocationCoordinate2D)location
+- (void)updateWithLocation:(CLLocationCoordinate2D)location maxCellWidth:(CGFloat)maxCellWidth
 {
-    self.imageWidthConstraint.constant = ATLMaxCellWidth();
+    self.imageWidthConstraint.constant = maxCellWidth;
     [self applyImageWidthConstraint:YES];
     [self setBubbleViewContentType:ATLBubbleViewContentTypeLocation];
     [self setNeedsUpdateConstraints];

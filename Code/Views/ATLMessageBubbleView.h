@@ -54,7 +54,7 @@ extern NSString *const ATLUserDidTapLinkNotification;
 /**
  @abstract Tells the bubble view to display a map image for a given location.
  */
-- (void)updateWithLocation:(CLLocationCoordinate2D)location;
+- (void)updateWithLocation:(CLLocationCoordinate2D)location maxCellWidth:(CGFloat)maxCellWidth;
 
 /**
  @abstract Tells the bubble view to clear out the content and prepare it for reuse.

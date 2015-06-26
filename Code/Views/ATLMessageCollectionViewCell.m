@@ -167,14 +167,16 @@ CGFloat const ATLMessageCellHorizontalMargin = 16.0f;
     }
     
     CGSize size = CGSizeZero;
+    CGFloat maxCellWidth = [[self class] maxCellWidth];
+    CGFloat maxCellHeight = [[self class] maxCellHeight];
     LYRMessagePart *sizePart = ATLMessagePartForMIMEType(self.message, ATLMIMETypeImageSize);
     if (sizePart) {
         size = ATLImageSizeForJSONData(sizePart.data);
-        size = ATLConstrainImageSizeToCellSize(size);
+        size = ATLConstrainImageSizeToCellSize(size, maxCellWidth, maxCellHeight);
     }
     if (CGSizeEqualToSize(size, CGSizeZero)) {
         // Resort to image's size, if no dimensions metadata message parts found.
-        size = ATLImageSizeForData(fullResImagePart.data);
+        size = ATLImageSizeForData(fullResImagePart.data, maxCellWidth, maxCellHeight);
     }
     
     // Fall-back to programatically requesting for a content download of
@@ -235,14 +237,16 @@ CGFloat const ATLMessageCellHorizontalMargin = 16.0f;
     }
     
     CGSize size = CGSizeZero;
+    CGFloat maxCellWidth = [[self class] maxCellWidth];
+    CGFloat maxCellHeight = [[self class] maxCellHeight];
     LYRMessagePart *sizePart = ATLMessagePartForMIMEType(self.message, ATLMIMETypeImageSize);
     if (sizePart) {
         size = ATLImageSizeForJSONData(sizePart.data);
-        size = ATLConstrainImageSizeToCellSize(size);
+        size = ATLConstrainImageSizeToCellSize(size, maxCellWidth, maxCellHeight);
     }
     if (CGSizeEqualToSize(size, CGSizeZero)) {
         // Resort to image's size, if no dimensions metadata message parts found.
-        size = ATLImageSizeForData(fullResImagePart.data);
+        size = ATLImageSizeForData(fullResImagePart.data, maxCellWidth, maxCellHeight);
     }
     
     // For GIFs we only download full resolution parts when rendered in the UI
@@ -277,7 +281,8 @@ CGFloat const ATLMessageCellHorizontalMargin = 16.0f;
                                                                  error:nil];
     double lat = [dictionary[ATLLocationLatitudeKey] doubleValue];
     double lon = [dictionary[ATLLocationLongitudeKey] doubleValue];
-    [self.bubbleView updateWithLocation:CLLocationCoordinate2DMake(lat, lon)];
+    CGFloat maxCellWidth = [[self class] maxCellWidth];
+    [self.bubbleView updateWithLocation:CLLocationCoordinate2DMake(lat, lon) maxCellWidth:maxCellWidth];
     [self.bubbleView updateProgressIndicatorWithProgress:0.0 visible:NO animated:NO];
 }
 
@@ -354,7 +359,7 @@ CGFloat const ATLMessageCellHorizontalMargin = 16.0f;
 
 - (void)configureLayoutConstraints
 {
-    CGFloat maxBubbleWidth = ATLMaxCellWidth() + ATLMessageBubbleLabelHorizontalPadding * 2;
+    CGFloat maxBubbleWidth = [[self class] maxCellWidth] + ATLMessageBubbleLabelHorizontalPadding * 2;
     [self.contentView addConstraint:[NSLayoutConstraint constraintWithItem:self.bubbleView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationLessThanOrEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:maxBubbleWidth]];
     [self.contentView addConstraint:[NSLayoutConstraint constraintWithItem:self.bubbleView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeHeight multiplier:1.0 constant:0]];
     [self.contentView addConstraint:[NSLayoutConstraint constraintWithItem:self.bubbleView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeTop multiplier:1.0 constant:0]];
@@ -402,17 +407,20 @@ CGFloat const ATLMessageCellHorizontalMargin = 16.0f;
     if (!font) {
         font = cell.messageTextFont;
     }
-    CGSize size = ATLTextPlainSize(text, font);
+    CGFloat maxCellWidth = [self maxCellWidth];
+    CGSize size = ATLTextPlainSize(text, font, maxCellWidth);
     return size.height + ATLMessageBubbleLabelVerticalPadding * 2;
 }
 
 + (CGFloat)cellHeightForImageMessage:(LYRMessage *)message
 {
     CGSize size = CGSizeZero;
+    CGFloat maxCellWidth = [self maxCellWidth];
+    CGFloat maxCellHeight = [self maxCellHeight];
     LYRMessagePart *sizePart = ATLMessagePartForMIMEType(message, ATLMIMETypeImageSize);
     if (sizePart) {
         size = ATLImageSizeForJSONData(sizePart.data);
-        size = ATLConstrainImageSizeToCellSize(size);
+        size = ATLConstrainImageSizeToCellSize(size, maxCellWidth, maxCellHeight);
     }
     if (CGSizeEqualToSize(size, CGSizeZero)) {
         LYRMessagePart *imagePart = ATLMessagePartForMIMEType(message, ATLMIMETypeImageJPEGPreview);
@@ -424,14 +432,26 @@ CGFloat const ATLMessageCellHorizontalMargin = 16.0f;
         if ((imagePart.transferStatus == LYRContentTransferComplete) ||
             (imagePart.transferStatus == LYRContentTransferAwaitingUpload) ||
             (imagePart.transferStatus == LYRContentTransferUploading)) {
-            size = ATLImageSizeForData(imagePart.data);
+            size = ATLImageSizeForData(imagePart.data, maxCellWidth, maxCellHeight);
         } else {
             // We don't have the image data yet, making cell think there's
             // an image with 3:4 aspect ration (portrait photo).
-            size = ATLConstrainImageSizeToCellSize(CGSizeMake(3000, 4000));
+            size = ATLConstrainImageSizeToCellSize(CGSizeMake(3000, 4000), maxCellWidth, maxCellHeight);
         }
     }
     return size.height;
+}
+
+#pragma mark - Max Cell Dimensions
+
++ (CGFloat)maxCellWidth
+{
+    return 215;
+}
+
++ (CGFloat)maxCellHeight
+{
+    return 300;
 }
 
 @end

@@ -42,32 +42,24 @@ extern NSString *const ATLImagePreviewHeightKey;
 extern NSString *const ATLLocationLatitudeKey;
 extern NSString *const ATLLocationLongitudeKey;
 
-//--------------------------
-// @name Max Cell Dimensions
-//--------------------------
-
-CGFloat ATLMaxCellWidth();
-
-CGFloat ATLMaxCellHeight();
-
 //----------------------
 // @name Image Utilities
 //----------------------
 
-CGSize ATLImageSizeForData(NSData *data);
+CGSize ATLImageSizeForData(NSData *data, CGFloat maxCellWidth, CGFloat maxCellHeight);
 
 CGSize ATLImageSizeForJSONData(NSData *data);
 
-CGSize ATLImageSize(UIImage *image);
+CGSize ATLImageSize(UIImage *image, CGFloat maxCellWidth, CGFloat maxCellHeight);
 
 /**
  @abstract Constraints the CGSize to the default cell size (defined in ATLMaxCellWidth() and ATLMaxCellHeight()) and preserving the original aspec ratio.
  @param imageSize The size of the source image that should be shrunk or enlarged.
  @return Returns a CGSize constrained to the cell size with the same aspect ratio as the source CGSize.
  */
-CGSize ATLConstrainImageSizeToCellSize(CGSize imageSize);
+CGSize ATLConstrainImageSizeToCellSize(CGSize imageSize, CGFloat maxCellWidth, CGFloat maxCellHeight);
 
-CGSize ATLTextPlainSize(NSString *string, UIFont *font);
+CGSize ATLTextPlainSize(NSString *string, UIFont *font, CGFloat maxCellWidth);
 
 CGRect ATLImageRectConstrainedToSize(CGSize imageSize, CGSize maxSize);
 

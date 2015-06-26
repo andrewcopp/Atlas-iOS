@@ -157,7 +157,8 @@ static CGFloat const ATLLineSpacing = 6;
 
 - (void)setUpMaxHeight
 {
-    CGSize size = ATLTextPlainSize(@" ", self.font);
+#warning GET MAX CELL WIDTH HERE
+    CGSize size = ATLTextPlainSize(@" ", self.font, 215);
     self.maxHeight = ceil(size.height) * 2 + ATLLineSpacing + self.textContainerInset.top + self.textContainerInset.bottom;
 }
 

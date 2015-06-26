@@ -21,9 +21,6 @@
 #import "ATLMessageBubbleView.h"
 #import "ATLMessagingUtilities.h"
 
-CGFloat const ATLMessageBubbleLabelVerticalPadding = 8.0f;
-CGFloat const ATLMessageBubbleLabelHorizontalPadding = 13.0f;
-
 CGFloat const ATLMessageBubbleMapWidth = 200.0f;
 CGFloat const ATLMessageBubbleMapHeight = 200.0f;
 CGFloat const ATLMessageBubbleDefaultHeight = 40.0f;
@@ -59,6 +56,16 @@ typedef NS_ENUM(NSInteger, ATLBubbleViewContentType) {
         _sharedCache = [NSCache new];
     });
     return _sharedCache;
+}
+
++ (CGFloat)horizontalPadding
+{
+    return 13.0f;
+}
+
++ (CGFloat)verticalPadding
+{
+    return 8.0f;
 }
 
 - (id)initWithFrame:(CGRect)frame
@@ -327,10 +334,10 @@ typedef NS_ENUM(NSInteger, ATLBubbleViewContentType) {
 
 - (void)configureBubbleViewLabelConstraints
 {
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:_bubbleViewLabel attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeTop multiplier:1.0 constant:ATLMessageBubbleLabelVerticalPadding]];
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:_bubbleViewLabel attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeLeft multiplier:1.0 constant:ATLMessageBubbleLabelHorizontalPadding]];
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:_bubbleViewLabel attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeRight multiplier:1.0 constant:-ATLMessageBubbleLabelHorizontalPadding]];
-    [self addConstraint:[NSLayoutConstraint constraintWithItem:_bubbleViewLabel attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationGreaterThanOrEqual toItem:self attribute:NSLayoutAttributeBottom multiplier:1.0 constant:-ATLMessageBubbleLabelVerticalPadding]];
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:_bubbleViewLabel attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeTop multiplier:1.0 constant:[[self class] verticalPadding]]];
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:_bubbleViewLabel attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeLeft multiplier:1.0 constant:[[self class] horizontalPadding]]];
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:_bubbleViewLabel attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeRight multiplier:1.0 constant:-[[self class] horizontalPadding]]];
+    [self addConstraint:[NSLayoutConstraint constraintWithItem:_bubbleViewLabel attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationGreaterThanOrEqual toItem:self attribute:NSLayoutAttributeBottom multiplier:1.0 constant:-[[self class] verticalPadding]]];
 }
 
 - (void)configureBubbleImageViewConstraints

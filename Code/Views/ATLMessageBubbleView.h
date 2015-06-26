@@ -22,8 +22,6 @@
 #import <MapKit/MapKit.h>
 #import "ATLProgressView.h"
 
-extern CGFloat const ATLMessageBubbleLabelVerticalPadding;
-extern CGFloat const ATLMessageBubbleLabelHorizontalPadding;
 extern CGFloat const ATLMessageBubbleMapWidth;
 extern CGFloat const ATLMessageBubbleMapHeight;
 extern CGFloat const ATLMessageBubbleDefaultHeight;
@@ -78,5 +76,15 @@ extern NSString *const ATLUserDidTapLinkNotification;
  @abstract The view that handles displaying an image.
  */
 @property (nonatomic) UIImageView *bubbleImageView;
+
+/**
+ 
+ */
++ (CGFloat)verticalPadding;
+
+/**
+ 
+ */
++ (CGFloat)horizontalPadding;
 
 @end

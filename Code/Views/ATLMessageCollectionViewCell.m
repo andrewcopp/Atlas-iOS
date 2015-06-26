@@ -359,7 +359,7 @@ CGFloat const ATLMessageCellHorizontalMargin = 16.0f;
 
 - (void)configureLayoutConstraints
 {
-    CGFloat maxBubbleWidth = ATLMaxCellWidth() + ATLMessageBubbleLabelHorizontalPadding * 2;
+    CGFloat maxBubbleWidth = ATLMaxCellWidth() + [[[self class] bubbleViewClass] horizontalPadding] * 2;
     [self.contentView addConstraint:[NSLayoutConstraint constraintWithItem:self.bubbleView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationLessThanOrEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:maxBubbleWidth]];
     [self.contentView addConstraint:[NSLayoutConstraint constraintWithItem:self.bubbleView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeHeight multiplier:1.0 constant:0]];
     [self.contentView addConstraint:[NSLayoutConstraint constraintWithItem:self.bubbleView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeTop multiplier:1.0 constant:0]];
@@ -408,7 +408,7 @@ CGFloat const ATLMessageCellHorizontalMargin = 16.0f;
         font = cell.messageTextFont;
     }
     CGSize size = ATLTextPlainSize(text, font);
-    return size.height + ATLMessageBubbleLabelVerticalPadding * 2;
+    return size.height + [[self bubbleViewClass] verticalPadding] * 2;
 }
 
 + (CGFloat)cellHeightForImageMessage:(LYRMessage *)message

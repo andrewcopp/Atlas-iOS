@@ -189,7 +189,7 @@ typedef NS_ENUM(NSUInteger, ATLAvatarItemDisplayFrequency) {
  @param layerClient The `LYRClient` object from which to retrieve the messages for display.
  @return An `LYRConversationViewController` object initialized with the given `LYRClient` object.
  */
-- (instancetype)initWithLayerClient:(LYRClient *)layerClient NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithLayerClient:(LYRClient *)layerClient;
 
 /**
  @abstract The `LYRClient` object used to initialize the controller.

@@ -78,12 +78,14 @@ extern NSString *const ATLUserDidTapLinkNotification;
 @property (nonatomic) UIImageView *bubbleImageView;
 
 /**
- 
+ @abstract The vertical padding between the edges of the bubble view and the label it contains.
+ @default '8.0f'
  */
 + (CGFloat)verticalPadding;
 
 /**
- 
+ @abstract The horizontal padding between the edges of the bubble view and the label it contains.
+ @default '13.0f'
  */
 + (CGFloat)horizontalPadding;
 

@@ -45,7 +45,7 @@ NSString *const ATLLocationLongitudeKey = @"lon";
 
 CGFloat ATLMaxCellWidth()
 {
-    return 215;
+    return 202;
 }
 
 CGFloat ATLMaxCellHeight()

@@ -33,7 +33,7 @@
 @interface ATLConversationViewController () <UICollectionViewDataSource, UICollectionViewDelegate, ATLMessageInputToolbarDelegate, UIActionSheetDelegate, LYRQueryControllerDelegate, CLLocationManagerDelegate>
 
 @property (nonatomic) ATLConversationDataSource *conversationDataSource;
-@property (nonatomic) BOOL shouldDisplayAvatarItem;
+@property (nonatomic) BOOL shouldDisplayAvatarItemForOthers;
 @property (nonatomic) NSMutableOrderedSet *typingParticipantIDs;
 @property (nonatomic) NSMutableArray *objectChanges;
 @property (nonatomic) NSHashTable *sectionHeaders;
@@ -221,7 +221,7 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
     // Configure avatar image display
     NSMutableSet *otherParticipantIDs = [self.conversation.participants mutableCopy];
     if (self.layerClient.authenticatedUserID) [otherParticipantIDs removeObject:self.layerClient.authenticatedUserID];
-    self.shouldDisplayAvatarItem = (otherParticipantIDs.count > 1) ? YES : self.shouldDisplayAvatarItemForOneOtherParticipant;
+    self.shouldDisplayAvatarItemForOthers = (otherParticipantIDs.count > 1) ? YES : self.shouldDisplayAvatarItemForOneOtherParticipant;
     
     // Configure message bar button enablement
     BOOL shouldEnableButton = self.conversation ? YES : NO;
@@ -377,7 +377,7 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
     if ([message.sender.userID isEqual:self.layerClient.authenticatedUserID]) {
         [cell shouldDisplayAvatarItem:self.shouldDisplayAvatarItemForUser];
     } else {
-        [cell shouldDisplayAvatarItem:self.shouldDisplayAvatarItem];
+        [cell shouldDisplayAvatarItem:self.shouldDisplayAvatarItemForOthers];
     }
     
     if ([self shouldDisplayAvatarItemAtIndexPath:indexPath]) {
@@ -489,7 +489,7 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
 
 - (BOOL)shouldDisplayAvatarItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (!self.shouldDisplayAvatarItem) return NO;
+    if (!self.shouldDisplayAvatarItemForOthers) return NO;
    
     LYRMessage *message = [self.conversationDataSource messageAtCollectionViewIndexPath:indexPath];
     if ([message.sender.userID isEqualToString:self.layerClient.authenticatedUserID] && !self.shouldDisplayAvatarItemForUser) {

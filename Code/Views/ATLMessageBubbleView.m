@@ -21,7 +21,7 @@
 #import "ATLMessageBubbleView.h"
 #import "ATLMessagingUtilities.h"
 
-CGFloat const ATLMessageBubbleLabelVerticalPadding = 8.0f;
+CGFloat const ATLMessageBubbleLabelVerticalPadding = 10.0f;
 CGFloat const ATLMessageBubbleLabelHorizontalPadding = 10.0f;
 
 CGFloat const ATLMessageBubbleMapWidth = 200.0f;

@@ -47,8 +47,6 @@
 @property (nonatomic) BOOL canDisableAddressBar;
 @property (nonatomic) dispatch_queue_t animationQueue;
 
-@property (nonatomic) UIActionSheet *photoActionSheet;
-
 @end
 
 @implementation ATLConversationViewController
@@ -59,6 +57,7 @@ static NSString *const ATLDefaultPushAlertGIF = @"sent you a GIF.";
 static NSString *const ATLDefaultPushAlertImage = @"sent you a photo.";
 static NSString *const ATLDefaultPushAlertLocation = @"sent you a location.";
 static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
+static NSInteger const ATLPhotoActionSheet = 1000;
 
 + (instancetype)conversationViewControllerWithLayerClient:(LYRClient *)layerClient;
 {
@@ -508,12 +507,12 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
 
 - (void)messageInputToolbar:(ATLMessageInputToolbar *)messageInputToolbar didTapLeftAccessoryButton:(UIButton *)leftAccessoryButton
 {
-    self.photoActionSheet = [[UIActionSheet alloc] initWithTitle:nil
-                                                        delegate:self
-                                               cancelButtonTitle:@"Cancel"
-                                          destructiveButtonTitle:nil
-                                               otherButtonTitles:@"Take Photo", @"Last Photo Taken", @"Photo Library", nil];
-    [self.photoActionSheet showInView:self.view];
+    UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:nil
+                                                             delegate:self
+                                                    cancelButtonTitle:@"Cancel"
+                                               destructiveButtonTitle:nil
+                                                    otherButtonTitles:@"Take Photo", @"Last Photo Taken", @"Photo Library", nil];
+    actionSheet.tag = ATLPhotoActionSheet;
 }
 
 - (void)messageInputToolbar:(ATLMessageInputToolbar *)messageInputToolbar didTapRightAccessoryButton:(UIButton *)rightAccessoryButton
@@ -634,7 +633,7 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
 
 - (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
 {
-    if ([actionSheet isEqual:self.photoActionSheet]) {
+    if (actionSheet.tag == ATLPhotoActionSheet) {
         switch (buttonIndex) {
             case 0:
                 [self displayImagePickerWithSourceType:UIImagePickerControllerSourceTypeCamera];

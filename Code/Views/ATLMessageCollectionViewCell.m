@@ -40,7 +40,7 @@ NSString *const ATLImageAccessibilityLabel = @"Message: Image";
 @implementation ATLMessageCollectionViewCell
 
 CGFloat const ATLMessageCellMinimumHeight = 10.0f;
-CGFloat const ATLMessageCellHorizontalMargin = 16.0f;
+CGFloat const ATLMessageCellHorizontalMargin = 62.0f;
 
 + (ATLMessageCollectionViewCell *)sharedCell
 {

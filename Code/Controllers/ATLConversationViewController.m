@@ -496,8 +496,8 @@ static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
         return NO;
     }
    
-    if ([self shouldClusterMessageAtSection:indexPath.section] && self.avatarItemDisplayFrequency != ATLAvatarItemDisplayFrequencyCluster) {
-        return NO;
+    if (![self shouldClusterMessageAtSection:indexPath.section] && self.avatarItemDisplayFrequency == ATLAvatarItemDisplayFrequencyCluster) {
+        return YES;
     }
     
     NSInteger lastQueryControllerRow = [self.conversationDataSource.queryController numberOfObjectsInSection:0] - 1;

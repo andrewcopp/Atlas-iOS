@@ -188,7 +188,7 @@ static float const ATLMediaAttachmentDefaultThumbnailJPEGCompression = 0.5f;
         ((ATLMediaInputStream *)self.thumbnailInputStream).maximumSize = thumbnailSize;
         ((ATLMediaInputStream *)self.thumbnailInputStream).compressionQuality = ATLMediaAttachmentDefaultThumbnailJPEGCompression;
         self.thumbnailMIMEType = ATLMIMETypeImageJPEGPreview;
-
+        
         // --------------------------------------------------------------------
         // Prepare the input stream and MIMEType for the metadata
         // about the asset.
@@ -315,7 +315,7 @@ static float const ATLMediaAttachmentDefaultThumbnailJPEGCompression = 0.5f;
 - (CGRect)attachmentBoundsForTextContainer:(NSTextContainer *)textContainer proposedLineFragment:(CGRect)lineFrag glyphPosition:(CGPoint)position characterIndex:(NSUInteger)charIndex
 {
     CGRect systemImageRect = [super attachmentBoundsForTextContainer:textContainer proposedLineFragment:lineFrag glyphPosition:position characterIndex:charIndex];
-    return ATLImageRectConstrainedToSize(systemImageRect.size, CGSizeMake(150, 150));
+    return ATLImageRectConstrainedToSize(systemImageRect.size, CGSizeEqualToSize(_maximumInputSize, CGSizeZero) ? CGSizeMake(150, 150) : _maximumInputSize);
 }
 
 @end
@@ -331,11 +331,26 @@ ALAsset *ATLMediaAttachmentFromAssetURL(NSURL *assetURL, ALAssetsLibrary *assetL
     __block ALAsset *resultAsset;
     dispatch_async(asyncQueue, ^{
         [assetLibrary assetForURL:assetURL resultBlock:^(ALAsset *asset) {
-            resultAsset = asset;
-            dispatch_semaphore_signal(semaphore);
-        } failureBlock:^(NSError *libraryError) {
-            dispatch_semaphore_signal(semaphore);
-        }];
+             if (asset){
+                 resultAsset = asset;
+                 dispatch_semaphore_signal(semaphore);
+             } else {
+                 // On iOS 8.1 [library assetForUrl] Photo Streams always returns nil. Try to obtain it in an alternative way
+                 [assetLibrary enumerateGroupsWithTypes:ALAssetsGroupPhotoStream usingBlock:^(ALAssetsGroup *group, BOOL *stop) {
+                      [group enumerateAssetsWithOptions:NSEnumerationReverse usingBlock:^(ALAsset *result, NSUInteger index, BOOL *stop) {
+                          if([result.defaultRepresentation.url isEqual:assetURL]) {
+                              resultAsset = result;
+                              *stop = YES;
+                              dispatch_semaphore_signal(semaphore);
+                          }
+                      }];
+                  } failureBlock:^(NSError *error) {
+                      dispatch_semaphore_signal(semaphore);
+                  }];
+             }
+         } failureBlock:^(NSError *error) {
+             dispatch_semaphore_signal(semaphore);
+         }];
     });
     dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
     return resultAsset;

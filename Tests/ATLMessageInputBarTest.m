@@ -23,6 +23,7 @@
 #import "ATLTestInterface.h"
 #import "ATLSampleConversationViewController.h"
 #import "ATLMediaAttachment.h"
+#import "ATLConstants.h"
 
 @interface ATLConversationViewController ()
 
@@ -258,36 +259,6 @@ extern NSString *const ATLMessageInputToolbarSendButton;
     [delegateMock verify];
 }
 
-- (void)testToVerifyHeightOfInputBarIsCapped
-{
-    [self setRootViewController];
-    ATLMessageInputToolbar *toolBar = (ATLMessageInputToolbar *)[tester waitForViewWithAccessibilityLabel:@"Message Input Toolbar"];
-    CGFloat toolbarHeight = toolBar.frame.size.height;
-    CGFloat toolbarNewHeight;
-    toolBar.maxNumberOfLines = 3;
-    
-    [tester tapViewWithAccessibilityLabel:ATLMessageInputToolbarTextInputView];
-    [tester enterText:@"" intoViewWithAccessibilityLabel:ATLMessageInputToolbarAccessibilityLabel];
-    [tester tapViewWithAccessibilityLabel:@"RETURN"];
-    toolbarNewHeight = toolBar.frame.size.height;
-    expect(toolbarNewHeight).to.beGreaterThan(toolbarHeight);
-    toolbarHeight = toolBar.frame.size.height;
-    
-    [tester tapViewWithAccessibilityLabel:@"RETURN"];
-    toolbarNewHeight = toolBar.frame.size.height;
-    expect(toolbarNewHeight).to.beGreaterThan(toolbarHeight);
-    toolbarHeight = toolBar.frame.size.height;
-    
-    [tester tapViewWithAccessibilityLabel:@"RETURN"];
-    toolbarNewHeight = toolBar.frame.size.height;
-    expect(toolbarNewHeight).to.equal(toolbarHeight);
-    toolbarHeight = toolBar.frame.size.height;
-    
-    [tester tapViewWithAccessibilityLabel:@"RETURN"];
-    toolbarNewHeight = toolBar.frame.size.height;
-    expect(toolbarNewHeight).to.equal(toolbarHeight);
-}
-
 - (void)testToVerifySelectingAndRemovingAnImageKeepsFontConsistent
 {
     [self setRootViewController];
@@ -335,6 +306,21 @@ extern NSString *const ATLMessageInputToolbarSendButton;
     
     expect(toolBar.rightAccessoryButton.imageView.image).to.equal(image);
     expect(toolBar.leftAccessoryButton.imageView.image).to.equal(image);
+}
+
+- (void)testToVerifyRightAccessoryButtonColor
+{
+    [self setRootViewController];
+    ATLMessageInputToolbar *toolBar = (ATLMessageInputToolbar *)[tester waitForViewWithAccessibilityLabel:@"Message Input Toolbar"];
+    expect([toolBar.rightAccessoryButton titleColorForState:UIControlStateNormal]).to.equal(ATLBlueColor());
+    expect([toolBar.rightAccessoryButton titleColorForState:UIControlStateDisabled]).to.equal([UIColor grayColor]);
+}
+
+- (void)testToVerifyDefaultFontForComposerTextInputView
+{
+    [self setRootViewController];
+    ATLMessageInputToolbar *toolBar = (ATLMessageInputToolbar *)[tester waitForViewWithAccessibilityLabel:@"Message Input Toolbar"];
+    expect(toolBar.textInputView.font).to.equal([UIFont systemFontOfSize:17]);
 }
 
 - (void)setRootViewController

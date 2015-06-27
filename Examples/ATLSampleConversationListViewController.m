@@ -36,7 +36,6 @@
     self.dataSource = self;
     self.delegate = self;
     self.deletionModes = @[@(LYRDeletionModeAllParticipants), @(LYRDeletionModeLocal)];
-    self.displaysAvatarItem = NO;
     
     UIBarButtonItem *new = [[UIBarButtonItem alloc] initWithTitle:@"New" style:UIBarButtonItemStylePlain target:self action:@selector(handleNewTap)];
     self.navigationItem.rightBarButtonItem = new;
@@ -83,7 +82,7 @@
 - (void)conversationListViewController:(ATLConversationListViewController *)conversationListViewController didSearchForText:(NSString *)searchText completion:(void (^)(NSSet *))completion
 {
     NSSet *participants = [ATLUserMock allMockParticipants];
-    NSSet *filteredParticipants = [participants filteredSetUsingPredicate:[NSPredicate predicateWithFormat:@"SELF.fullName CONTAINS %@", searchText]];
+    NSSet *filteredParticipants = [participants filteredSetUsingPredicate:[NSPredicate predicateWithFormat:@"SELF.fullName CONTAINS[cd] %@", searchText]];
     completion(filteredParticipants);
 }
 
@@ -102,9 +101,9 @@
     
     // Put the latest message sender's name first
     ATLUserMock *firstUser;
-    if (![conversation.lastMessage.sentByUserID isEqualToString:self.layerClient.authenticatedUserID]) {
+    if (![conversation.lastMessage.sender.userID isEqualToString:self.layerClient.authenticatedUserID]) {
         if (conversation.lastMessage) {
-            NSPredicate *searchPredicate = [NSPredicate predicateWithFormat:@"SELF.participantIdentifier IN %@", conversation.lastMessage.sentByUserID];
+            NSPredicate *searchPredicate = [NSPredicate predicateWithFormat:@"SELF.participantIdentifier IN %@", conversation.lastMessage.sender.userID];
             ATLUserMock *lastMessageSender = [[[participants filteredSetUsingPredicate:searchPredicate] allObjects] lastObject];
             if (lastMessageSender) {
                 firstUser = lastMessageSender;

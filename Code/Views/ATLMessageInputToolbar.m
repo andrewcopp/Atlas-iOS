@@ -53,6 +53,13 @@ static CGFloat const ATLLeftAccessoryButtonWidth = 40.0f;
 static CGFloat const ATLRightAccessoryButtonWidth = 46.0f;
 static CGFloat const ATLButtonHeight = 28.0f;
 
++ (void)initialize
+{
+    ATLMessageInputToolbar *proxy = [self appearance];
+    proxy.rightAccessoryButtonActiveColor = ATLBlueColor();
+    proxy.rightAccessoryButtonDisabledColor = [UIColor grayColor];
+}
+
 - (id)init
 {
     self = [super init];
@@ -101,6 +108,9 @@ static CGFloat const ATLButtonHeight = 28.0f;
         [self configureRightAccessoryButtonState];
         self.firstAppearance = NO;
     }
+    
+    // set the font for the dummy text view as well
+    self.dummyTextView.font = self.textInputView.font;
     
     // We layout the views manually since using Auto Layout seems to cause issues in this context (i.e. an auto height resizing text view in an input accessory view) especially with iOS 7.1.
     CGRect frame = self.frame;
@@ -219,6 +229,18 @@ static CGFloat const ATLButtonHeight = 28.0f;
 {
     _rightAccessoryImage = rightAccessoryImage;
     [self.rightAccessoryButton setImage:rightAccessoryImage forState:UIControlStateNormal];
+}
+
+- (void)setRightAccessoryButtonActiveColor:(UIColor *)rightAccessoryButtonActiveColor
+{
+    _rightAccessoryButtonActiveColor = rightAccessoryButtonActiveColor;
+    [self.rightAccessoryButton setTitleColor:rightAccessoryButtonActiveColor forState:UIControlStateNormal];
+}
+
+- (void)setRightAccessoryButtonDisabledColor:(UIColor *)rightAccessoryButtonDisabledColor
+{
+    _rightAccessoryButtonDisabledColor = rightAccessoryButtonDisabledColor;
+    [self.rightAccessoryButton setTitleColor:rightAccessoryButtonDisabledColor forState:UIControlStateDisabled];
 }
 
 #pragma mark - Actions
@@ -345,8 +367,13 @@ static CGFloat const ATLButtonHeight = 28.0f;
     self.rightAccessoryButton.contentEdgeInsets = UIEdgeInsetsMake(2, 0, 0, 0);
     self.rightAccessoryButton.titleLabel.font = [UIFont boldSystemFontOfSize:17];
     [self.rightAccessoryButton setTitle:@"Send" forState:UIControlStateNormal];
-    [self.rightAccessoryButton setTitleColor:ATLBlueColor() forState:UIControlStateNormal];
-    [self.rightAccessoryButton setTitleColor:[UIColor grayColor] forState:UIControlStateDisabled];
+    [self.rightAccessoryButton setTitleColor:self.rightAccessoryButtonActiveColor forState:UIControlStateNormal];
+    [self.rightAccessoryButton setTitleColor:self.rightAccessoryButtonDisabledColor forState:UIControlStateDisabled];
+    if (!self.displaysRightAccessoryImage && !self.textInputView.text.length) {
+        self.rightAccessoryButton.enabled = NO;
+    } else {
+        self.rightAccessoryButton.enabled = YES;
+    }
 }
 
 - (void)configureRightAccessoryButtonForImage

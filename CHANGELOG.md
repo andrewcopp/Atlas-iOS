@@ -1,5 +1,18 @@
 # Atlas Changelog
 
+## 1.0.8
+
+### Enhancements
+
+* Updated change notification handling code due to LayerKit library upgrade to v0.13.3, which has some braking changes in change notifications dictionary.
+
+## 1.0.7
+
+### Public API Changes
+
+* Implemented `conversationListViewController:configurationForDefaultQuery:` to provide for query customization in the `ATLConversationListViewController`. 
+* Implemented `conversationViewController:configurationForDefaultQuery:` to provide for query customization in the `ATLConversationViewController`. 
+
 ## 1.0.6
 
 ### Bug Fixes

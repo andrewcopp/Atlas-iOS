@@ -74,12 +74,12 @@
  @param mediaAttachments The array of `ATLMediaAttachment` items supplied via user input into the `messageInputToolbar` property of the controller.
  @return An `NSOrderedSet` of `LYRMessage` objects. If `nil` is returned, the controller will fall back to default behavior. If an empty
  `NSOrderedSet` is returned, the controller will not send any messages.
- @discussion Called when a user taps the `SEND` button on an `ATLMessageInputToolbar`. The media attachments array supplied can contain
- any media type, such as text, images, GPS location information. Applications who wish to send `LYRMessage` objects with custom `LYRMessagePart`
- MIME types not supported by default by Atlas can do so by implementing this method. All `LYRMessage` objects returned will be immediately 
- sent into the current conversation for the controller. If implemented, applications should also register custom `UICollectionViewCell` classes 
- with the controller via a call to `registerClass:forMessageCellWithReuseIdentifier:`. They should also implement the optional data source method,
- `conversationViewController:reuseIdentifierForMessage:`.
+ @discussion Called when a user taps the `rightAccessoryButton` on an `ATLMessageInputToolbar`. The media attachments array supplied can contain
+ any media type, such as text, images, GPS location information.  The media attachment array can also be empty, which indicates the `rightAccessoryButton`
+ was tapped when it contained no content, ie. the location share. Applications who wish to send `LYRMessage` objects with custom `LYRMessagePart` MIME
+ types not supported by default by Atlas can do so by implementing this method. All `LYRMessage` objects returned will be immediately sent into the
+ current conversation for the controller. If implemented, applications should also register custom `UICollectionViewCell` classes with the controller via
+ a call to `registerClass:forMessageCellWithReuseIdentifier:`. They should also implement the optional data source method, `conversationViewController:reuseIdentifierForMessage:`.
  */
 - (NSOrderedSet *)conversationViewController:(ATLConversationViewController *)viewController messagesForMediaAttachments:(NSArray *)mediaAttachments;
 
@@ -142,6 +142,23 @@
  */
 - (LYRConversation *)conversationViewController:(ATLConversationViewController *)viewController conversationWithParticipants:(NSSet *)participants;
 
+/**
+ @abstract Asks the data source to configure the default query used to fetch content for the controller if necessary.
+ @discussion The `LYRConversationViewController` uses the following default query:
+ 
+     LYRQuery *query = [LYRQuery queryWithQueryableClass:[LYRMessage class]];
+     query.predicate = [LYRPredicate predicateWithProperty:@"conversation" predicateOperator:LYRPredicateOperatorIsEqualTo value:self.conversation];
+     query.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"position" ascending:YES]];
+ 
+ Applications that require advanced query configuration can do so by implementing this data source method.
+ 
+ @param viewController The `ATLConversationViewController` requesting the configuration.
+ @param defaultQuery An `LYRQuery` object with the default configuration for the controller.
+ @return An `LYRQuery` object with any additional configuration.
+ @raises `NSInvalidArgumentException` if an `LYRQuery` object is not returned.
+ */
+- (LYRQuery *)conversationViewController:(ATLConversationViewController *)viewController willLoadWithQuery:(LYRQuery *)defaultQuery;
+
 @end
 
 /**
@@ -161,6 +178,13 @@
  @return An `LYRConversationViewController` object.
  */
 + (instancetype)conversationViewControllerWithLayerClient:(LYRClient *)layerClient;
+
+/**
+ @abstract Initializes a new `ATLConversationViewController` object with the given `LYRClient` object.
+ @param layerClient The `LYRClient` object from which to retrieve the messages for display.
+ @return An `LYRConversationViewController` object initialized with the given `LYRClient` object.
+ */
+- (instancetype)initWithLayerClient:(LYRClient *)layerClient;
 
 /**
  @abstract The `LYRClient` object used to initialize the controller.
@@ -202,7 +226,7 @@
  @discussion This method is useful after the completion of asynchronous user resolution activities.
  @param participantIdentifier The identifier of the participant whose messages are to be reloaded.
  */
-- (void)reloadCellsForMessagesSentByParticipantWithIdentitifier:(NSString *)participantIdentifier;
+- (void)reloadCellsForMessagesSentByParticipantWithIdentifier:(NSString *)participantIdentifier;
 
 /**
  @abstract Informs the reciever that it should send a message with the current location of the device.
@@ -226,5 +250,11 @@
  @default `YES`.
  */
 @property (nonatomic) BOOL marksMessagesAsRead;
+
+/**
+ @abstract A Boolean value that determines whether or not an avatar is shown if there is only one other participant in the conversation.
+ @default `NO`.
+ */
+@property (nonatomic) BOOL shouldDisplayAvatarItemForOneOtherParticipant;
 
 @end

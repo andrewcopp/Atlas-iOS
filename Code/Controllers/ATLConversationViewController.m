@@ -55,6 +55,10 @@
 
 static NSInteger const ATLMoreMessagesSection = 0;
 static NSString *const ATLPushNotificationSoundName = @"layerbell.caf";
+static NSString *const ATLDefaultPushAlertGIF = @"sent you a GIF.";
+static NSString *const ATLDefaultPushAlertImage = @"sent you a photo.";
+static NSString *const ATLDefaultPushAlertLocation = @"sent you a location.";
+static NSString *const ATLDefaultPushAlertText = @"sent you a message.";
 
 + (instancetype)conversationViewControllerWithLayerClient:(LYRClient *)layerClient;
 {
@@ -62,7 +66,7 @@ static NSString *const ATLPushNotificationSoundName = @"layerbell.caf";
     return [[self alloc] initWithLayerClient:layerClient];
 }
 
-- (id)initWithLayerClient:(LYRClient *)layerClient
+- (instancetype)initWithLayerClient:(LYRClient *)layerClient
 {
     self = [super init];
     if (self) {
@@ -91,10 +95,12 @@ static NSString *const ATLPushNotificationSoundName = @"layerbell.caf";
 {
     _dateDisplayTimeInterval = 60*60;
     _marksMessagesAsRead = YES;
+    _shouldDisplayAvatarItemForOneOtherParticipant = NO;
     _typingParticipantIDs = [NSMutableOrderedSet new];
     _sectionHeaders = [NSHashTable weakObjectsHashTable];
     _sectionFooters = [NSHashTable weakObjectsHashTable];
     _objectChanges = [NSMutableArray new];
+    _animationQueue = dispatch_queue_create("com.atlas.animationQueue", DISPATCH_QUEUE_SERIAL);
 }
 
 - (void)loadView
@@ -127,7 +133,6 @@ static NSString *const ATLPushNotificationSoundName = @"layerbell.caf";
     self.messageInputToolbar.inputToolBarDelegate = self;
     self.addressBarController.delegate = self;
     self.canDisableAddressBar = YES;
-    self.animationQueue = dispatch_queue_create("com.atlas.animationQueue", DISPATCH_QUEUE_SERIAL);
     [self atl_registerForNotifications];
 }
 
@@ -191,7 +196,19 @@ static NSString *const ATLPushNotificationSoundName = @"layerbell.caf";
 - (void)fetchLayerMessages
 {
     if (!self.conversation) return;
-    self.conversationDataSource = [ATLConversationDataSource dataSourceWithLayerClient:self.layerClient conversation:self.conversation];
+    
+    LYRQuery *query = [LYRQuery queryWithQueryableClass:[LYRMessage class]];
+    query.predicate = [LYRPredicate predicateWithProperty:@"conversation" predicateOperator:LYRPredicateOperatorIsEqualTo value:self.conversation];
+    query.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"position" ascending:YES]];
+    
+    if ([self.dataSource respondsToSelector:@selector(conversationViewController:willLoadWithQuery:)]) {
+        query = [self.dataSource conversationViewController:self willLoadWithQuery:query];
+        if (![query isKindOfClass:[LYRQuery class]]){
+            @throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"Data source must return an `LYRQuery` object." userInfo:nil];
+        }
+    }
+    
+    self.conversationDataSource = [ATLConversationDataSource dataSourceWithLayerClient:self.layerClient query:query];
     self.conversationDataSource.queryController.delegate = self;
     self.showingMoreMessagesIndicator = [self.conversationDataSource moreMessagesAvailable];
     [self.collectionView reloadData];
@@ -204,7 +221,7 @@ static NSString *const ATLPushNotificationSoundName = @"layerbell.caf";
     // Configure avatar image display
     NSMutableSet *otherParticipantIDs = [self.conversation.participants mutableCopy];
     if (self.layerClient.authenticatedUserID) [otherParticipantIDs removeObject:self.layerClient.authenticatedUserID];
-    self.shouldDisplayAvatarItem = otherParticipantIDs.count > 1;
+    self.shouldDisplayAvatarItem = (otherParticipantIDs.count > 1) ? YES : self.shouldDisplayAvatarItemForOneOtherParticipant;
     
     // Configure message bar button enablement
     BOOL shouldEnableButton = self.conversation ? YES : NO;
@@ -360,7 +377,7 @@ static NSString *const ATLPushNotificationSoundName = @"layerbell.caf";
     [cell shouldDisplayAvatarItem:self.shouldDisplayAvatarItem];
     
     if ([self shouldDisplayAvatarItemAtIndexPath:indexPath]) {
-        [cell updateWithSender:[self participantForIdentifier:message.sentByUserID]];
+        [cell updateWithSender:[self participantForIdentifier:message.sender.userID]];
     } else {
         [cell updateWithSender:nil];
     }
@@ -398,7 +415,7 @@ static NSString *const ATLPushNotificationSoundName = @"layerbell.caf";
 - (CGFloat)defaultCellHeightForItemAtIndexPath:(NSIndexPath *)indexPath
 {
     LYRMessage *message = [self.conversationDataSource messageAtCollectionViewIndexPath:indexPath];
-    if ([message.sentByUserID isEqualToString:self.layerClient.authenticatedUserID]) {
+    if ([message.sender.userID isEqualToString:self.layerClient.authenticatedUserID]) {
         return [ATLOutgoingMessageCollectionViewCell cellHeightForMessage:message inView:self.view];
     } else {
         return [ATLIncomingMessageCollectionViewCell cellHeightForMessage:message inView:self.view];
@@ -427,11 +444,11 @@ static NSString *const ATLPushNotificationSoundName = @"layerbell.caf";
     if (self.conversation.participants.count <= 2) return NO;
     
     LYRMessage *message = [self.conversationDataSource messageAtCollectionViewSection:section];
-    if ([message.sentByUserID isEqualToString:self.layerClient.authenticatedUserID]) return NO;
+    if ([message.sender.userID isEqualToString:self.layerClient.authenticatedUserID]) return NO;
 
     if (section > ATLNumberOfSectionsBeforeFirstMessageSection) {
         LYRMessage *previousMessage = [self.conversationDataSource messageAtCollectionViewSection:section - 1];
-        if ([previousMessage.sentByUserID isEqualToString:message.sentByUserID]) {
+        if ([previousMessage.sender.userID isEqualToString:message.sender.userID]) {
             return NO;
         }
     }
@@ -446,7 +463,7 @@ static NSString *const ATLPushNotificationSoundName = @"layerbell.caf";
     if (section != lastSection) return NO;
 
     LYRMessage *message = [self.conversationDataSource messageAtCollectionViewSection:section];
-    if (![message.sentByUserID isEqualToString:self.layerClient.authenticatedUserID]) return NO;
+    if (![message.sender.userID isEqualToString:self.layerClient.authenticatedUserID]) return NO;
     
     return YES;
 }
@@ -471,7 +488,7 @@ static NSString *const ATLPushNotificationSoundName = @"layerbell.caf";
     if (!self.shouldDisplayAvatarItem) return NO;
    
     LYRMessage *message = [self.conversationDataSource messageAtCollectionViewIndexPath:indexPath];
-    if ([message.sentByUserID isEqualToString:self.layerClient.authenticatedUserID]) {
+    if ([message.sender.userID isEqualToString:self.layerClient.authenticatedUserID]) {
         return NO;
     }
    
@@ -480,7 +497,7 @@ static NSString *const ATLPushNotificationSoundName = @"layerbell.caf";
     if (indexPath.section < lastSection) {
         LYRMessage *nextMessage = [self.conversationDataSource messageAtCollectionViewSection:indexPath.section + 1];
         // If the next message is sent by the same user, no
-        if ([nextMessage.sentByUserID isEqualToString:message.sentByUserID]) {
+        if ([nextMessage.sender.userID isEqualToString:message.sender.userID]) {
             return NO;
         }
     }
@@ -504,14 +521,12 @@ static NSString *const ATLPushNotificationSoundName = @"layerbell.caf";
     if (!self.conversation) {
         return;
     }
-    if (messageInputToolbar.mediaAttachments.count) {
-        NSOrderedSet *messages = [self messagesForMediaAttachments:messageInputToolbar.mediaAttachments];
+    NSOrderedSet *messages = [self messagesForMediaAttachments:messageInputToolbar.mediaAttachments];
+    if (messages.count == 0) {
+        [self sendLocationMessage];
+    } else {
         for (LYRMessage *message in messages) {
             [self sendMessage:message];
-        }
-    } else {
-        if (messageInputToolbar.textInputView.text.length == 0) {
-            [self sendLocationMessage];
         }
     }
     if (self.addressBarController) [self.addressBarController disable];
@@ -536,16 +551,31 @@ static NSString *const ATLPushNotificationSoundName = @"layerbell.caf";
     NSMutableOrderedSet *messages = [NSMutableOrderedSet new];
     for (ATLMediaAttachment *attachment in mediaAttachments){
         NSArray *messageParts = ATLMessagePartsWithMediaAttachment(attachment);
-        LYRMessage *message = [self messageForMessageParts:messageParts pushText:attachment.textRepresentation];
+        LYRMessage *message = [self messageForMessageParts:messageParts MIMEType:attachment.mediaMIMEType pushText:(([attachment.mediaMIMEType isEqualToString:ATLMIMETypeTextPlain]) ? attachment.textRepresentation : nil)];
         if (message)[messages addObject:message];
     }
     return messages;
 }
 
-- (LYRMessage *)messageForMessageParts:(NSArray *)parts pushText:(NSString *)pushText;
+- (LYRMessage *)messageForMessageParts:(NSArray *)parts MIMEType:(NSString *)MIMEType pushText:(NSString *)pushText;
 {
     NSString *senderName = [[self participantForIdentifier:self.layerClient.authenticatedUserID] fullName];
-    NSDictionary *pushOptions = @{LYRMessageOptionsPushNotificationAlertKey : [NSString stringWithFormat:@"%@: %@", senderName, pushText],
+    NSString *completePushText;
+    if (!pushText) {
+        if ([MIMEType isEqualToString:ATLMIMETypeImageGIF]) {
+            completePushText = [NSString stringWithFormat:@"%@ %@", senderName, ATLDefaultPushAlertGIF];
+        } else if ([MIMEType isEqualToString:ATLMIMETypeImagePNG] || [MIMEType isEqualToString:ATLMIMETypeImageJPEG]) {
+            completePushText = [NSString stringWithFormat:@"%@ %@", senderName, ATLDefaultPushAlertImage];
+        } else if ([MIMEType isEqualToString:ATLMIMETypeLocation]) {
+            completePushText = [NSString stringWithFormat:@"%@ %@", senderName, ATLDefaultPushAlertLocation];
+        } else {
+            completePushText = [NSString stringWithFormat:@"%@ %@", senderName, ATLDefaultPushAlertText];
+        }
+    } else {
+        completePushText = [NSString stringWithFormat:@"%@: %@", senderName, pushText];
+    }
+
+    NSDictionary *pushOptions = @{LYRMessageOptionsPushNotificationAlertKey : completePushText,
                                   LYRMessageOptionsPushNotificationSoundNameKey : ATLPushNotificationSoundName};
     NSError *error;
     LYRMessage *message = [self.layerClient newMessageWithParts:parts options:pushOptions error:&error];
@@ -596,7 +626,7 @@ static NSString *const ATLPushNotificationSoundName = @"layerbell.caf";
 - (void)sendMessageWithLocation:(CLLocation *)location
 {
     ATLMediaAttachment *attachement = [ATLMediaAttachment mediaAttachmentWithLocation:location];
-    LYRMessage *message = [self messageForMessageParts:ATLMessagePartsWithMediaAttachment(attachement) pushText:@"Attachement: Location"];
+    LYRMessage *message = [self messageForMessageParts:ATLMessagePartsWithMediaAttachment(attachement) MIMEType:ATLMIMETypeLocation pushText:nil];
     [self sendMessage:message];
 }
 
@@ -712,14 +742,11 @@ static NSString *const ATLPushNotificationSoundName = @"layerbell.caf";
     if (![notification.object isEqual:self.layerClient]) return;
     
     NSArray *changes = notification.userInfo[LYRClientObjectChangesUserInfoKey];
-    for (NSDictionary *change in changes) {
-        
-        id changedObject = change[LYRObjectChangeObjectKey];
-        if (![changedObject isEqual:self.conversation]) continue;
-        
-        LYRObjectChangeType changeType = [change[LYRObjectChangeTypeKey] integerValue];
-        NSString *changedProperty = change[LYRObjectChangePropertyKey];
-        if (changeType == LYRObjectChangeTypeUpdate && [changedProperty isEqualToString:@"participants"]) {
+    for (LYRObjectChange *change in changes) {
+        if (![change.object isEqual:self.conversation]) {
+            continue;
+        }
+        if (change.type == LYRObjectChangeTypeUpdate && [change.property isEqualToString:@"participants"]) {
             [self configureControllerForChangedParticipants];
             break;
         }
@@ -905,18 +932,19 @@ static NSString *const ATLPushNotificationSoundName = @"layerbell.caf";
         if (indexPath) {
             NSIndexPath *collectionViewIndexPath = [self.conversationDataSource collectionViewIndexPathForQueryControllerIndexPath:indexPath];
             if (collectionViewIndexPath) {
+                // Configure the cell, the header, and the footer
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [self.collectionView reloadItemsAtIndexPaths:@[ collectionViewIndexPath ]];
+                    [self configureCollectionViewElementsAtCollectionViewIndexPath:collectionViewIndexPath];
                 });
             }
         }
     });
 }
 
-- (void)reloadCellsForMessagesSentByParticipantWithIdentitifier:(NSString *)participantIdentifier
+- (void)reloadCellsForMessagesSentByParticipantWithIdentifier:(NSString *)participantIdentifier
 {
     dispatch_async(self.animationQueue, ^{
-        // Query for the All the Messages in the set of identifiers we have where sent by user == participantIdentifier
+        // Query for all of the message identifiers in the conversation
         LYRQuery *messageIdentifiersQuery = [self.conversationDataSource.queryController.query copy];
         messageIdentifiersQuery.resultType = LYRQueryResultTypeIdentifiers;
         NSError *error = nil;
@@ -925,9 +953,10 @@ static NSString *const ATLPushNotificationSoundName = @"layerbell.caf";
             NSLog(@"LayerKit failed to execute query with error: %@", error);
             return;
         }
-        
+
+        // Query for the all of the message identifiers in the above set where user == participantIdentifier
         LYRQuery *query = [LYRQuery queryWithQueryableClass:[LYRMessage class]];
-        LYRPredicate *senderPredicate = [LYRPredicate predicateWithProperty:@"sentByUserID" predicateOperator:LYRPredicateOperatorIsEqualTo value:participantIdentifier];
+        LYRPredicate *senderPredicate = [LYRPredicate predicateWithProperty:@"sender.userID" predicateOperator:LYRPredicateOperatorIsEqualTo value:participantIdentifier];
         LYRPredicate *objectIdentifiersPredicate = [LYRPredicate predicateWithProperty:@"identifier" predicateOperator:LYRPredicateOperatorIsIn value:messageIdentifiers];
         query.predicate = [LYRCompoundPredicate compoundPredicateWithType:LYRCompoundPredicateTypeAnd subpredicates:@[ senderPredicate, objectIdentifiersPredicate ]];
         query.resultType = LYRQueryResultTypeIdentifiers;
@@ -936,12 +965,17 @@ static NSString *const ATLPushNotificationSoundName = @"layerbell.caf";
             NSLog(@"LayerKit failed to execute query with error: %@", error);
             return;
         }
-        
+
+        // Convert query controller index paths to collection view index paths
         NSDictionary *objectIdentifiersToIndexPaths = [self.conversationDataSource.queryController indexPathsForObjectsWithIdentifiers:messageIdentifiersToReload.set];
-        NSArray *indexPaths = [objectIdentifiersToIndexPaths allValues];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.collectionView reloadItemsAtIndexPaths:indexPaths];
-        });
+        NSArray *queryControllerIndexPaths = [objectIdentifiersToIndexPaths allValues];
+        for (NSIndexPath *indexPath in queryControllerIndexPaths) {
+            NSIndexPath *collectionViewIndexPath = [self.conversationDataSource collectionViewIndexPathForQueryControllerIndexPath:indexPath];
+            // Configure the cell, the header, and the footer
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self configureCollectionViewElementsAtCollectionViewIndexPath:collectionViewIndexPath];
+            });
+        }
     });
 }
 
@@ -1038,7 +1072,7 @@ static NSString *const ATLPushNotificationSoundName = @"layerbell.caf";
         reuseIdentifier = [self.dataSource conversationViewController:self reuseIdentifierForMessage:message];
     }
     if (!reuseIdentifier) {
-        if ([self.layerClient.authenticatedUserID isEqualToString:message.sentByUserID]) {
+        if ([self.layerClient.authenticatedUserID isEqualToString:message.sender.userID]) {
             reuseIdentifier = ATLOutgoingMessageCellIdentifier;
         } else {
             reuseIdentifier = ATLIncomingMessageCellIdentifier;
@@ -1161,6 +1195,35 @@ static NSString *const ATLPushNotificationSoundName = @"layerbell.caf";
     }
 }
 
+- (void)configureCollectionViewElementsAtCollectionViewIndexPath:(NSIndexPath *)collectionViewIndexPath {
+    // Direct access to the message
+    LYRMessage *message = [self.conversationDataSource messageAtCollectionViewIndexPath:collectionViewIndexPath];
+    UICollectionViewCell *cell = [self.collectionView cellForItemAtIndexPath:collectionViewIndexPath];
+    if ([cell conformsToProtocol:@protocol(ATLMessagePresenting)]) {
+        [self configureCell:(UICollectionViewCell<ATLMessagePresenting> *)cell forMessage:message indexPath:collectionViewIndexPath];
+    }
+
+    // Find the header...
+    for (ATLConversationCollectionViewHeader *header in self.sectionHeaders) {
+        NSIndexPath *queryControllerIndexPath = [self.conversationDataSource.queryController indexPathForObject:header.message];
+        if (queryControllerIndexPath && [header.message.identifier isEqual:message.identifier]) {
+            NSIndexPath *collectionViewIndexPath = [self.conversationDataSource collectionViewIndexPathForQueryControllerIndexPath:queryControllerIndexPath];
+            [self configureHeader:header atIndexPath:collectionViewIndexPath];
+            break;
+        }
+    }
+
+    // ...and the footer
+    for (ATLConversationCollectionViewFooter *footer in self.sectionFooters) {
+        NSIndexPath *queryControllerIndexPath = [self.conversationDataSource.queryController indexPathForObject:footer.message];
+        if (queryControllerIndexPath && [footer.message.identifier isEqual:message.identifier]) {
+            NSIndexPath *collectionViewIndexPath = [self.conversationDataSource collectionViewIndexPathForQueryControllerIndexPath:queryControllerIndexPath];
+            [self configureFooter:footer atIndexPath:collectionViewIndexPath];
+            break;
+        }
+    }
+}
+
 #pragma mark - Helpers
 
 - (LYRConversation *)existingConversationWithParticipantIdentifiers:(NSSet *)participantIdentifiers
@@ -1186,7 +1249,7 @@ static NSString *const ATLPushNotificationSoundName = @"layerbell.caf";
 
 - (NSString *)participantNameForMessage:(LYRMessage *)message
 {
-    id<ATLParticipant> participant = [self participantForIdentifier:message.sentByUserID];
+    id<ATLParticipant> participant = [self participantForIdentifier:message.sender.userID];
     NSString *participantName = participant.fullName ?: @"Unknown User";
     return participantName;
 }

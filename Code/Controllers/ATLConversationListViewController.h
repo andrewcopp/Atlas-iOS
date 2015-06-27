@@ -93,6 +93,16 @@
 - (id<ATLAvatarItem>)conversationListViewController:(ATLConversationListViewController *)conversationListViewController avatarItemForConversation:(LYRConversation *)conversation;
 
 /**
+ @abstract Asks the data source for the table view cell reuse identifier for a conversation.
+ @param conversationListViewController The `ATLConversationListViewController` requesting the string.
+ @return A string that will be used to dequeue a cell from the table view.
+ @discussion Applications that wish to use prototype cells from a UIStoryboard in the ATLConversationListViewController cannot register their cells programmatically.
+ The cell must be given a reuse identifier in the UIStoryboard and that string needs to be passed into the ATLConversationListViewController so it can properly dequeue a
+ reuseable cell. If 'nil' is returned, the table view will default to internal values for reuse identifiers.
+ */
+- (NSString *)reuseIdentifierForConversationListViewController:(ATLConversationListViewController *)conversationListViewController;
+
+/**
  @abstract Asks the data source for a string to display on the delete button for a given deletion mode.
  @param conversationListViewController The `LYRConversationListViewController` in which the button title will appear.
  @param deletionMode The `LYRDeletionMode` for which a button has to be displayed.
@@ -107,6 +117,31 @@
  @return The color to apply on the delete button for a given deletion mode in the conversation list.
  */
 - (UIColor *)conversationListViewController:(ATLConversationListViewController *)conversationListViewController colorForButtonWithDeletionMode:(LYRDeletionMode)deletionMode;
+
+/**
+ @abstract Asks the data source for the string to display as the conversation's last sent message.
+ @params conversation The conversation for which the last message text should be returned.
+ @return A string representing the content of the last message.  If `nil` is returned the controller will fall back to default behavior.
+ @discussion This is used when the application uses custom `MIMEType`s and wants to customize how they are displayed.
+ */
+- (NSString *)conversationListViewController:(ATLConversationListViewController *)conversationListViewController lastMessageTextForConversation:(LYRConversation *)conversation;
+
+/**
+ @abstract Asks the data source to configure the query used to fetch content for the controller if necessary.
+ @discussion The `LYRConversationListViewController` uses the following default query:
+ 
+     LYRQuery *query = [LYRQuery queryWithQueryableClass:[LYRConversation class]];
+     query.predicate = [LYRPredicate predicateWithProperty:@"participants" predicateOperator:LYRPredicateOperatorIsIn value:self.layerClient.authenticatedUserID];
+     query.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"lastMessage.receivedAt" ascending:NO]];
+ 
+ Applications that require advanced query configuration can do so by implementing this data source method.
+ 
+ @param viewController The `ATLConversationViewController` requesting the configuration.
+ @param defaultQuery An `LYRQuery` object with the default configuration for the controller.
+ @return An `LYRQuery` object with any additional configuration.
+@raises `NSInvalidArgumentException` if an `LYRQuery` object is not returned.
+ */
+- (LYRQuery *)conversationListViewController:(ATLConversationListViewController *)viewController willLoadWithQuery:(LYRQuery *)defaultQuery;
 
 @end
 
@@ -126,6 +161,13 @@
  @return An `LYRConversationListViewController` object.
  */
 + (instancetype)conversationListViewControllerWithLayerClient:(LYRClient *)layerClient;
+
+/**
+ @abstract Initializes a new `ATLConversationListViewController` object with the given `LYRClient` object.
+ @param layerClient The `LYRClient` object from which conversations will be fetched for display.
+ @return An `LYRConversationListViewController` object initialized with the given `LYRClient` object.
+ */
+- (instancetype)initWithLayerClient:(LYRClient *)layerClient;
 
 ///-------------------------------------------------------
 /// @name Configuring Layer Client, Delegate & Data Source
@@ -202,7 +244,7 @@
 /**
  @abstract The controller used to display search results.
  */
-@property (nonatomic, readonly) UISearchDisplayController *searchContorller;
+@property (nonatomic, readonly) UISearchDisplayController *searchController;
 
 
 ///------------------------------

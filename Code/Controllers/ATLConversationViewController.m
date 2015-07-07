@@ -146,6 +146,9 @@ static NSInteger const ATLPhotoActionSheet = 1000;
     if (self.conversation.lastMessage == nil && self.noMessagesView) {
         self.collectionView.hidden = YES;
         self.noMessagesView.hidden = NO;
+    } else {
+        self.collectionView.hidden = NO;
+        self.noMessagesView.hidden = YES;
     }
     
     self.canDisableAddressBar = YES;

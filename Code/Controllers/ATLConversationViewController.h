@@ -204,6 +204,12 @@ typedef NS_ENUM(NSUInteger, ATLAvatarItemDisplayFrequency) {
 @property (nonatomic) LYRConversation *conversation;
 
 /**
+ @abstract The `LYRQueryController` object managing data displayed in the controller.
+ */
+@property (nonatomic, readonly) LYRQueryController *queryController;
+
+
+/**
  @abstract The `ATLConversationViewControllerDelegate` class informs the receiver to specific events that occurred within the controller.
  */
 @property (nonatomic, weak) id<ATLConversationViewControllerDelegate> delegate;

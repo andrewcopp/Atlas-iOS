@@ -154,6 +154,14 @@ static CGFloat const ATLMaxScrollDistanceFromBottom = 150;
     [self configureCollectionViewLayoutConstraints];
 }
 
+- (void)setNoMessagesView:(UIView *)noMessagesView
+{
+    _noMessagesView = noMessagesView;
+    _noMessagesView.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.view addSubview:self.noMessagesView];
+    [self configureNoMessagesViewLayoutConstraints];
+}
+
 - (void)setTypingIndicatorInset:(CGFloat)typingIndicatorInset
 {
     _typingIndicatorInset = typingIndicatorInset;
@@ -316,6 +324,14 @@ static CGFloat const ATLMaxScrollDistanceFromBottom = 150;
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.collectionView attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeRight multiplier:1.0 constant:0]];
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.collectionView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeTop multiplier:1.0 constant:0]];
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.collectionView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0]];
+}
+
+- (void)configureNoMessagesViewLayoutConstraints
+{
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.noMessagesView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeLeft multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.noMessagesView attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeRight multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.noMessagesView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeTop multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.noMessagesView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0]];
 }
 
 - (void)configureTypingIndicatorLayoutConstraints

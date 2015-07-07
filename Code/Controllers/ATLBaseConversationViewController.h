@@ -54,6 +54,12 @@
  */
 @property (nonatomic) UICollectionView *collectionView;
 
+/**
+ @abstract The 'UIView' responsible for displaying content when there are no messages.
+ @discussion Subclasses should set the no messages view property in their 'loadView' method. The controller will then handle configuring autolayout contraints for the collections view.
+ */
+@property (nonatomic) UIView *noMessagesView;
+
 ///----------------------------------------------
 /// @name Configuring View Options
 ///----------------------------------------------

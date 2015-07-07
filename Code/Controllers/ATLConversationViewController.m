@@ -143,6 +143,11 @@ static NSInteger const ATLPhotoActionSheet = 1000;
         [self configureAddressBarForConversation];
     }
     
+    if (self.conversation.lastMessage == nil && self.noMessagesView) {
+        self.collectionView.hidden = YES;
+        self.noMessagesView.hidden = NO;
+    }
+    
     self.canDisableAddressBar = YES;
     if (!self.hasAppeared) {
         [self.collectionView layoutIfNeeded];

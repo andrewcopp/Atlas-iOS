@@ -171,7 +171,7 @@ typedef NS_ENUM(NSUInteger, ATLAvatarItemDisplayFrequency) {
  a Layer conversation and the ability to send messages. The controller's design and functionality closely correlates with
  the conversation view controller in Messages.
 */
-@interface ATLConversationViewController : ATLBaseConversationViewController <ATLAddressBarViewControllerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate>
+@interface ATLConversationViewController : ATLBaseConversationViewController <ATLAddressBarViewControllerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, LYRQueryControllerDelegate>
 
 ///---------------------------------------
 /// @name Initializing a Controller
@@ -207,7 +207,6 @@ typedef NS_ENUM(NSUInteger, ATLAvatarItemDisplayFrequency) {
  @abstract The `LYRQueryController` object managing data displayed in the controller.
  */
 @property (nonatomic, readonly) LYRQueryController *queryController;
-
 
 /**
  @abstract The `ATLConversationViewControllerDelegate` class informs the receiver to specific events that occurred within the controller.

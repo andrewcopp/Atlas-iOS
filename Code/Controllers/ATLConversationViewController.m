@@ -1118,7 +1118,7 @@ static NSInteger const ATLPhotoActionSheet = 1000;
     NSInteger newIndex = newIndexPath ? [self.conversationDataSource collectionViewSectionForQueryControllerRow:newIndexPath.row] : NSNotFound;
     [self.objectChanges addObject:[ATLDataSourceChange changeObjectWithType:type newIndex:newIndex currentIndex:currentIndex]];
     
-    if (type == LYRQueryControllerChangeTypeInsert && !self.noMessagesView.hidden) {
+    if ((type == LYRQueryControllerChangeTypeInsert || type == LYRQueryControllerChangeTypeUpdate) && !self.noMessagesView.hidden) {
         self.noMessagesView.hidden = YES;
         self.collectionView.hidden = NO;
     }

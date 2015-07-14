@@ -406,7 +406,6 @@ static NSInteger const ATLPhotoActionSheet = 1000;
 - (void)configureCell:(UICollectionViewCell<ATLMessagePresenting> *)cell forMessage:(LYRMessage *)message indexPath:(NSIndexPath *)indexPath
 {
     [cell presentMessage:message];
-
     BOOL willDisplayAvatarItem = (![message.sender.userID isEqualToString:self.layerClient.authenticatedUserID]) ? self.shouldDisplayAvatarItem : (self.shouldDisplayAvatarItem && self.shouldDisplayAvatarItemForAuthenticatedUser);
     [cell shouldDisplayAvatarItem:willDisplayAvatarItem];
     
